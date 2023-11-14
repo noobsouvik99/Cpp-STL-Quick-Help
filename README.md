@@ -20,6 +20,8 @@ priority_queue<int, vector<int>> pq;               //creates max-heap
 1. Using in-built comparator provided by C++ : 
 
 priority_queue<int, vector<int>, greater<int>> pq;  //creates min-heap
+priority_queue< pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>> > pq; //min_heap of pairs
+priority_queue< pair<int, int>, vector<pair<int, int>>, greater<> > pq;               //min_heap of pairs
 ```
 ```c++
 2. Using user defined comparator as a structure
@@ -113,26 +115,39 @@ cout << sum; //11
 Benefit : You didn't have to write for loop to find the sum
 ```
 
-### :memo: std::accumulate(begin_iterator, end_iterator, initial_sum, binary_op) :heavy_plus_sign:
+### :memo: std::accumulate(begin_iterator, end_iterator, initial_sum, lambda) :heavy_plus_sign:
 ```c++
-binary_op : Binary operation taking an element of type <initial_sum> as first argument and an
+lambda : Binary operation taking an element of type <initial_sum> as first argument and an
             element in the range as second, and which returns a value that can be assigned to type T.
 
-Example : 
+Example-1 : 
 
-auto myBinaryOp = [&](int s, long n) {
+auto lambda = [&](int s, long n) {
     return s + n*n; //sums the square of numbers
-    //You can call any other function inside as well instead of n*n
+    //You can call any other function inside as well
 };
 
 int sum = 0;
 vector<int> nums{1, 3, 2, 5};
-sum = accumulate(begin(nums), end(nums), 0, myBinaryOp);
+sum = accumulate(begin(nums), end(nums), 0, lambda);
 
 cout << sum; //39
 
+Example-2 : Handling 2-D matrix
+//Summming all elements row by row
+auto lambda = [&](int sum, vector<int> vec) {
+    sum = sum + accumulate(begin(vec), end(vec), 0);
+    return sum;
+};
+
+int result =  accumulate(matrix.begin(), matrix.end(), 0, lambda);
+
+
 Beautiful example and usage :
-https://leetcode.com/problems/number-of-ways-where-square-of-number-is-equal-to-product-of-two-numbers/discuss/1305961/C%2B-(A-very-simple-Two-Sum-like-approach)
+Leetcode-1577 (My Approach - https://leetcode.com/problems/number-of-ways-where-square-of-number-is-equal-to-product-of-two-numbers/discuss/1305961/C%2B-(A-very-simple-Two-Sum-like-approach)
+
+Leetcode-1572 (My Approach - https://leetcode.com/problems/matrix-diagonal-sum/discuss/3498479/Using-C%2B%2B-STL-%3A-accumulate)
+
 ```
 
 ### :memo: min_element(begin_iterator, end_iterator), max_element(begin_iterator, end_iterator), minmax_element(begin_iterator, end_iterator) :astonished:
@@ -243,7 +258,7 @@ Exmaple-2
     while (s >> word)
         count++;
     cout << count;
-    NOTE: It will tokenize words on the basis of ' ' (space) characters
+    NOTE: It will tokenize words on the basis of ' ' (space by default) characters
 Example-3
     It can be used very well to extract numbers from string.
     string complex = "1+1i";
@@ -347,4 +362,68 @@ Example :
     Qns on Leetcode:
     Leetcode - 1796 : Second Largest Digit in a String
     etc.
+```
+
+
+### :memo: Writing lambda for upper_bound or lower_bound for vector<pair<int, string>> :1234:
+```c++
+Example-1 : 
+        //Let's say you want upper_bound for a variable timestamp, take it in a pair (because it's a vector of pair)
+        pair<int, string> ref = make_pair(timestamp, "");
+            
+        auto lambda = [](const pair<int, string>& p1, const pair<int, string>& p2) {
+            return p1.first < p2.first;
+        };
+        
+        auto it = upper_bound(begin(my_vector), end(my_vector), ref, lambda);
+	
+Example-2 : 
+        //Let's say you want to find upper_bound of a value in a non-increasing vector.
+	vector<int> vec{1, 0, -1, -2}
+	int idx = upper_bound(begin(vec), end(vec), 0, greater<int>()) - begin(vec);
+	Output will be index of -1 (i.e. 2)
+	
+	Qns on Leetcode:
+    	Leetcode - 981 : Time Based Key-Value Store
+	Leetcode - 744 : Find Smallest Letter Greater Than Target
+	Leetcode - 1351 : Count Negative Numbers in a Sorted Matrix
+    
+```
+
+
+### :memo: Writing lambda for unordered_map to make life simple :1234:
+```c++
+Example : 
+        //Let's say, you want to store different evaluate logic for different operator "+", "-", "*", "/"
+	unordered_map<string, function<int (int, int) > > mp = {
+            { "+" , [] (int a, int b) { return a + b; } },
+            { "-" , [] (int a, int b) { return a - b; } },
+            { "*" , [] (int a, int b) { return a * b; } },
+            { "/" , [] (int a, int b) { return a / b; } }
+        };
+	
+	//Simply use it like below :-
+	int result = mp["+"](1, 2); //This will return 1+2 i.e. 3
+	
+	Qns on Leetcode: 150
+	Leetcode - : Evaluate Reverse Polish Notation
+    
+```
+
+
+
+
+### :memo: std::set_difference and std::back_inserter :1234:
+```c++
+set_difference -> Copies the elements from the sorted s1 which are not found in the sorted s2 to a container in sorted order
+back_inserter -> Can be used to add elements to the end of a container
+Example : 
+        set<int> st1, st2;
+	vector<int> v1;
+	//Find difference in between set1 and set2 and put unique element of set1 in v1
+	set_difference(begin(st1), end(st1), begin(st2), end(st2), back_inserter(v1));
+	
+	Qns on Leetcode: 2215
+	Leetcode - : Find the Difference of Two Arrays
+    
 ```
